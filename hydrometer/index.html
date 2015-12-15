@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Temperature</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $("#Units-of-measure").change(function() {
+                var value = this.value;
+
+
+                var mt = $("#Measured-temperature").val();
+                var cts = $("#Calibrated-temperature-standard").val();
+                var datasubmited = {
+                    'action': 'convert',
+                    'c_to': value,
+                    'mt': mt,
+                    'cts': cts
+                }
+                $('#loading').removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    url: "temp.php",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: datasubmited,
+
+                    dataType: "json",
+                    success: function(data) {
+                        console.log(data);
+                        $('#loading').addClass('hidden');
+                        $('#Measured-temperature').val(data['data']['mt']);
+                        $('#Calibrated-temperature-standard').val(data['data']['cts']);
+
+
+
+
+                    },
+
+                });
+
+            });
+            $('input').on('change', function() {
+                var sg = $("#Measured-specific-gravity").val();
+                var mt = $("#Measured-temperature").val();
+                var cts = $("#Calibrated-temperature-standard").val();
+                var unit = $("#Units-of-measure").val();
+
+                if (sg == "" || mt == "" || cts == "" || unit == "") {
+
+                    return false;
+                }
+                var datasubmited = {
+                    'sg': sg,
+                    'mt': mt,
+                    'cts': cts,
+                    'unit': unit,
+                    'action': 'cal'
+                }
+                $('#loading').removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    url: "temp.php",
+                    dataType: "json",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: datasubmited,
+
+
+                    success: function(data) {
+                        data = data['data']['ag'];
+                        $("#Corrected-specific-gravity").val(data);
+                        $('#loading').addClass('hidden');
+
+
+
+
+                    },
+
+                });
+
+
+
+
+            });
+
+
+
+
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+						Temperature
+					</h3>
+                <p>This tool allows you to Correct for temperature when measuring specific gravity using a hydrometer.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Input</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Units-of-measure">
+                            Units of measure
+                        </label>
+                        <select class="form-control" id="Units-of-measure" autocomplete="off">
+                            <option value='c'>C</option>
+                            <option value='f'>F</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Measured-specific-gravity">
+                            Measured specific gravity
+                        </label>
+                        <input class="form-control" id="Measured-specific-gravity" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Measured-temperature">
+                            Measured temperature
+                        </label>
+                        <input class="form-control" id="Measured-temperature" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Calibrated-temperature-standard">
+                            Calibrated temperature standard
+                        </label>
+                        <input class="form-control" id="Calibrated-temperature-standard" type="text" autocomplete="off" />
+                    </div>
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 well">
+                <h3>Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Corrected-specific-gravity">
+                            Corrected specific gravity
+                        </label>
+                        <input class="form-control" id="Corrected-specific-gravity" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

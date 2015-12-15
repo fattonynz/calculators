@@ -1,0 +1,148 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Color</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            function get_calculations_complete(data) {
+                $('#loading').addClass('hidden');
+                var response = data['responseText'];
+                try {
+                    response = $.parseJSON(response);
+                } catch (e) {
+                    console.log(response);
+                }
+                if (response['result'] == 'ok') {
+                    if (self.current_calculation != 'srm') {
+                        $('#srm').val(response['data']['srm']);
+                    }
+                    if (self.current_calculation != 'lovibond') {
+                        $('#lovibond').val(response['data']['lovibond']);
+                    }
+                    if (self.current_calculation != 'ebc') {
+                        $('#ebc').val(response['data']['ebc']);
+                    }
+                } else {
+                    if (response['result'] == 'error') {
+                        console.log(response['error_desc']);
+                    } else {
+                        console.log(response);
+                    }
+                }
+            };
+
+            $('input').on('change', function() {
+                $('#loading').removeClass('hidden');
+                var $this = $(this);
+                var value = $this.val();
+                if (value != '' && !isNaN(value)) {
+
+                    var current_calculation = $this.attr('id');
+
+                    var datasubmited = {
+                        'from_field': current_calculation,
+                        'value': value
+                    }
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: "color.php",
+                        // The key needs to match your method's input parameter (case-sensitive).
+                        data: datasubmited,
+
+                        dataType: "json",
+                        success: function(data) {
+
+                            $('#loading').addClass('hidden');
+
+
+
+                            $('#srm').val(data['data']['srm']);
+
+                            $('#lovibond').val(data['data']['lovibond']);
+
+                            $('#ebc').val(data['data']['ebc']);
+
+
+
+
+                        },
+                        failure: function(errMsg) {
+                            alert(errMsg);
+                        }
+                    });
+
+
+
+
+                }
+
+            });
+
+
+
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h3>
+						Color 
+					</h3>
+                <p>This tool allows you to easily convert between the three most common methods used to measure color in brewing: SRM, EBC, and Degrees Lovibond.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h3>Input and Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="srm">
+                            SRM
+                        </label>
+                        <input class="form-control" id="srm" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="lovibond">
+                            Lovibond
+                        </label>
+                        <input class="form-control" id="lovibond" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="ebc">
+                            EBC
+                        </label>
+                        <input class="form-control" id="ebc" type="text" autocomplete="off" />
+                    </div>
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Yeast</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+
+            $("#Measurement").change(function() {
+
+                var value = $(this).val();
+
+
+                if (value == "metric") {
+
+                    $("#wv").text("Liters");
+                    $("#ctp").text("Billion");
+                    $("#un").text("Units");
+                    $("#dw").text("Grams");
+
+                } else {
+                    $("#wv").text("Galoons");
+                    $("#ctp").text("Billion");
+                    $("#un").text("Units");
+                    $("#dw").text("Grams");
+
+                }
+
+
+            });
+            $("select").change(function() {
+                ajax_call();
+            });
+            $('input').on('change', function() {
+
+                ajax_call();
+
+
+
+
+            });
+
+            function ajax_call() {
+
+
+
+                var unit = $("#Measurement").val();
+                var mg = $("#Measured-gravity").val();
+                var wt = $("#Wort-volume").val();
+                var type = $("#Style").val();
+                var datasubmited = {
+                    'unit': unit,
+                    'mg': mg,
+                    'wv': wt,
+                    'type': type
+                }
+
+                if (mg == "" || wt == "") {
+                    return false;
+                }
+                $('#loading').removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    url: "yeast.php",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: datasubmited,
+
+                    dataType: "json",
+                    success: function(data) {
+
+                        $("#Cells-to-pitch").val(data['data']['num']);
+                        $("#Vials").val(data['data']['num_liq']);
+                        $("#Dry-weight").val(data['data']['grams_dry']);
+                        $('#loading').addClass('hidden');
+
+
+
+
+                    }
+                });
+
+
+
+
+            }
+
+
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+						Yeast
+					</h3>
+                <p>This tool helps you determine how many yeast cells are required for fermentation </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Input</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Measurement ">
+                            Measurement
+                        </label>
+                        <select class="form-control" id="Measurement">
+
+                            <option value='metric'>Metric </option>
+                            <option value='us'> U.S </option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Style">
+                            Style
+                        </label>
+                        <select class="form-control" id="Style">
+
+                            <option value='Ale'>Ale</option>
+                            <option value='Larger'>Larger</option>
+
+
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Measured-gravity">
+                            Measured gravity
+                        </label>
+
+                        <input class="form-control" id="Measured-gravity" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Wort-volume">
+                            Wort volume
+                        </label>
+                        <label for="Wort-volume">
+                            <small id='wv' style='font-size:10px; color:gray; margin-left:50px;'>Liters</small>
+                        </label>
+                        <input class="form-control" id="Wort-volume" type="text" autocomplete="off" />
+                    </div>
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 well">
+                <h3>Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Cells-to-pitch">
+                            Cells to pitch
+                        </label>
+                        <label for="Cells-to-pitch">
+                            <small id='ctp' style='font-size:10px; color:gray; margin-left:50px;'>Billion</small>
+                        </label>
+                        <input class="form-control" id="Cells-to-pitch" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Vials">
+                            Vials
+                        </label>
+                        <label for="Vials">
+                            <small id='un' style='font-size:10px; color:gray; margin-left:50px;'>Units</small>
+                        </label>
+                        <input class="form-control" id="Vials" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Dry-weight">
+                            Dry weight
+                        </label>
+
+                        <label for="Dry-weight">
+                            <small id='dw' style='font-size:10px; color:gray; margin-left:50px;'>Grams</small>
+                        </label>
+                        <input class="form-control" id="Dry-weight" type="text" readonly="readonly autocomplete=" off " />
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+
+  </body>
+</html>

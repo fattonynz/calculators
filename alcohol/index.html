@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Alcohol</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+
+            function calcAbv() {
+                var og = parseFloat($('#original-gravity').val());
+                var fg = parseFloat($('#final-gravity').val());
+
+                if (isNaN(og) || isNaN(fg)) {
+                    $('#alcohol-volume').val('–');
+                    $('#alcohol-weight').val('–');
+                    return;
+                }
+
+
+                $.ajax({
+                        method: "POST",
+                        dataType: "json",
+                        url: "calculate.php",
+                        data: {
+                            action: "ab",
+                            og: og,
+                            fg: fg
+                        }
+                    })
+                    .done(function(msg) {
+                        var abv = msg['data']['abv'];
+                        var abw = msg['data']['abw'];
+                        abv = parseFloat(abv);
+                        abw = parseFloat(abw);
+                        $('#alcohol-volume').val(abv);
+                        $('#alcohol-weight').val(abw);
+                    });
+
+
+
+
+            }
+
+
+
+
+            function measuredBrixtoFinal() {
+                var g;
+                var fb;
+                oBrix = parseFloat($('#original-brix').val());
+                mBrix = parseFloat($('#measured-brix').val());
+
+                if (isNaN(oBrix) || isNaN(mBrix)) {
+                    return;
+                }
+
+                $.ajax({
+                        method: "POST",
+                        dataType: "json",
+                        url: "calculate.php",
+                        data: {
+                            ob: oBrix,
+                            mb: mBrix
+                        }
+                    })
+                    .done(function(msg) {
+
+                        msg = msg['data']['bfg']
+                        msg = parseFloat(msg);
+
+                        $('#final-gravity').val(msg.toFixed(3));
+
+                    });
+                var g = $('#final-gravity').val();
+
+                $.ajax({
+                        method: "POST",
+                        url: "calculate.php",
+                        dataType: "json",
+                        data: {
+                            gravity: g
+                        }
+                    })
+                    .done(function(msg) {
+                        msg = msg['data']['g_to_b'];
+                        msg = parseFloat(msg);
+
+                        $('#final-brix').val(msg.toFixed(2));
+                    });
+
+
+
+
+            }
+
+
+            $('input').on('change', function() {
+                var $this = $(this);
+                if ($this.val() != '') {
+
+                    if ($this.attr('id') === 'original-brix') {
+
+
+
+
+                        $.ajax({
+                                method: "POST",
+                                dataType: "json",
+                                url: "calculate.php",
+                                data: {
+                                    brix: $this.val()
+                                }
+                            })
+                            .done(function(msg) {
+
+                                msg = msg['data']['b_to_g']
+
+                                $('#original-gravity').val(msg.toFixed(3));
+                                measuredBrixtoFinal();
+                            });
+
+
+
+
+                    }
+
+
+
+
+                    if ($this.attr('id') === 'measured-brix') {
+
+                        measuredBrixtoFinal();
+
+
+
+
+                    }
+                    if ($this.attr('id') === 'original-gravity') {
+
+                        $.ajax({
+                                method: "POST",
+                                dataType: "json",
+                                url: "calculate.php",
+                                data: {
+                                    gravity: $this.val()
+                                }
+                            })
+                            .done(function(msg) {
+                                msg = msg['data']['g_to_b'];
+                                msg = parseFloat(msg);
+
+                                $('#original-brix').val(msg.toFixed(2));
+                                $('#measured-brix').val('');
+                            });
+
+
+
+
+                    }
+
+                    if ($this.attr('id') === 'final-gravity') {
+
+
+
+
+                        $.ajax({
+                                method: "POST",
+                                url: "calculate.php",
+                                data: {
+                                    gravity: $this.val()
+                                }
+                            })
+                            .done(function(msg) {
+
+                                msg = parseFloat(msg);
+
+                                $('#final-brix').val(msg.toFixed(2));
+                                $('#measured-brix').val('');
+                            });
+
+
+
+
+                    }
+                }
+                calcAbv();
+            });
+
+
+
+
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+						Alcohol 
+					</h3>
+                <p>This tool allows you to convert between brix and gravity and calculates alcohol by volume (ABV) as well as alcohol by weight (ABV).</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Input</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="original-gravity">
+                            Original Gravity
+                        </label>
+                        <input class="form-control" id="original-gravity" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="final-gravity">
+                            Final Gravity
+                        </label>
+                        <input class="form-control" id="final-gravity" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="original-brix">
+                            Original Brix
+                        </label>
+                        <input class="form-control" id="original-brix" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="measured-brix">
+                            Measured Brix
+                        </label>
+                        <input class="form-control" id="measured-brix" type="text" autocomplete="off" />
+                    </div>
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 well">
+                <h3>Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="alcohol-volume">
+                            Alcohol by Volume
+                        </label>
+                        <input class="form-control" id="alcohol-volume" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+                    <div class="form-group">
+                        <label for="alcohol-weight">
+                            Alcohol by Weight
+                        </label>
+                        <input class="form-control" id="alcohol-weight" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+                    <div class="form-group">
+                        <label for="final-brix">
+                            Final Brix
+                        </label>
+                        <input class="form-control" id="final-brix" type="text" readonly="readonly" autocomplete="off" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

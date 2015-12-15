@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Malt</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $('input').change(function() {
+                var cg = $("#Course-grind").val();
+                var fg = $("#Fine-grind").val();
+                var datasubmited = {
+
+                    'cg': cg,
+                    'fg': fg
+                }
+                $('#loading').removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    url: "malt.php",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: datasubmited,
+
+                    dataType: "json",
+                    success: function(data) {
+                        console.log(data);
+                        $('#loading').addClass('hidden');
+                        $("#Extract-points-per-gallon").val(data['data']['points']);
+                        $("#Extraction-potential").val(data['data']['potential']);
+
+
+
+
+                    },
+
+                });
+
+            });
+
+
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+						Malt
+					</h3>
+                <p>This tool computes how much fermentable sugar can be extracted from a fermentable ingredient </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Input</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Course-grind">
+                            Course grind
+                        </label>
+                        <input class="form-control" id="Course-grind" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Fine-grind">
+                            Fine grind
+                        </label>
+                        <input class="form-control" id="Fine-grind" type="text" autocomplete="off" />
+                    </div>
+
+
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 well">
+                <h3>Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Extract-points-per-gallon">
+                            Extract points per gallon
+                        </label>
+                        <input class="form-control" id="Extract-points-per-gallon" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Extraction-potential">
+                            Extraction potential
+                        </label>
+                        <input class="form-control" id="Extraction-potential" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

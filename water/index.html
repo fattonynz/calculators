@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Mash Water Calculator</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $("select").on(' change', function() {
+                ajax_call();
+            });
+            $("input").on(' change', function() {
+                ajax_call();
+            });
+
+            function ajax_call() {
+                var mashThickness = parseFloat(Boolean(false) ?
+                    $('#Mash-thickness').val() :
+                    $('#Mash-thickness').val() / 4);
+
+                var grainWeight = $('#Grain-weight').val();
+                var grainTemp = $('#Grain-temperature').val();
+                var boilVolume = $('#Boil-volume').val();
+                var grainAbsorptionFactor = $('#Grain-absorbtion-factor').val();
+                var lauterDeadspace = $('#Layter-deadspace').val();
+                var mashThickness = mashThickness;
+                var mashTemp = $('#Temperature').val();
+                var mashTime = $('#time').val();
+                var boilingTemp = $('#Boiling-temperature').val();
+                var profile = $("#Mash-process").val();
+                var datasubmited = {
+                    'gw': grainWeight,
+                    'gt': grainTemp,
+                    'bv': boilVolume,
+                    'gaf': grainAbsorptionFactor,
+                    'ld': lauterDeadspace,
+                    'mt': mashThickness,
+                    't': mashTemp,
+                    'mash_time': mashTime,
+                    'bt': boilingTemp,
+
+                    'action': profile
+                }
+                $('#loading').removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    url: "mash.php",
+                    dataType: "json",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: datasubmited,
+
+
+                    success: function(data) {
+
+                        $("#Mash-Schedule").html(data['data']);
+                        $('#loading').addClass('hidden');
+
+
+
+
+                    }
+                });
+
+
+
+
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+						Mash Water Calculator 
+					</h3>
+                <p>This tool helps you caclulate your mash water process in a step-by-step fashion </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Input</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Mash process">
+                            Mash process
+                        </label>
+
+                        <select class="form-control" id="Mash-process">
+                            <option value="Batch-Sparge">Single Infusion, Batch Sparge</option>
+                            <option value="Mash-Out-Batch-Sparge">Single Infusion, Mash Out, Batch Sparge</option>
+                            <option value="Mash-Out-Batch-Sparge-Equal-Runnings">Single Infusion, Mash Out, Batch Sparge (Equal Runnings)</option>
+                            <option value="Single-Infusion-Two-Equal-Batch-Sparges">Single Infusion, Two Equal Batch Sparges</option>
+                            <option value="No-Sparge-BIAB">Single Infusion, No Sparge (BIAB)</option>
+                            <option value="Sparge-Rinse-BIAB">Single Infusion, Sparge Rinse (BIAB)</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="time">
+                            Time
+                        </label>
+                        <label for="time">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>Minutes</small>
+                        </label>
+                        <input class="form-control" id="time" style='width:130px;' type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Temperature">
+                            Temperature
+                        </label>
+                        <label for="Temperature">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>degF</small>
+                        </label>
+                        <input class="form-control" style='width:140px;' id="Temperature" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Grain-weight">
+                            Grain weight
+                        </label>
+                        <label for="Grain-weight">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>lb</small>
+                        </label>
+                        <input class="form-control" id="Grain-weight" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="Grain-temperature">
+                            Grain temperature
+                        </label>
+                        <label for="Grain-temperature">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>degF</small>
+                        </label>
+                        <input class="form-control" id="Grain-temperature" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="Boil-volume">
+                            Boil volume
+                        </label>
+                        <label for="Boil-volume">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>gal</small>
+                        </label>
+                        <input class="form-control" id="Boil-volume" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+
+
+
+
+
+                    <div class="form-group">
+                        <label for="Layter-deadspace">
+                            Layter deadspace
+                        </label>
+                        <label for="Layter-deadspace">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>gal</small>
+                        </label>
+                        <input class="form-control" id="Layter-deadspace" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="Mash-thickness">
+                            Mash thickness
+                        </label>
+                        <label for="Mash-thickness">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>qt/lb</small>
+                        </label>
+                        <input class="form-control" id="Mash-thickness" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Boiling-temperature">
+                            Boiling temperature
+                        </label>
+                        <label for="Boiling-temperature">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>degF</small>
+                        </label>
+                        <input class="form-control" id="Boiling-temperature" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Grain-absorbtion-factor">
+                            Grain absorbtion factor
+                        </label>
+                        <label for="Grain-absorbtion-factor">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:25px;'>gal/lb</small>
+                        </label>
+                        <input class="form-control" id="Grain-absorbtion-factor" style='width:140px;' type="text" autocomplete="off" />
+                    </div>
+
+
+
+
+
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 well">
+                <h3>Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label>
+                            Mash Schedule
+                        </label>
+                        <p id='Mash-Schedule'>
+
+
+                        </p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

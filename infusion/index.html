@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Infusion</title>
+
+    <meta name="description" content="Converter">
+    <meta name="author" content="Converter">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type='text/javascript'>
+        $(document).ready(function() {
+
+            $("#Measurement-units").change(function() {
+
+                var val = $("#Measurement-units").val();
+
+                if (val == "metric") {
+
+                    $("#st").text("degC");
+                    $("#gw").text("kg");
+                    $("#thickn").text("liters/kg");
+                    $("#target_t").text("degC");
+                    $("#water_req").text("liters");
+
+
+                } else {
+
+                    $("#st").text("degf");
+                    $("#gw").text("lb");
+                    $("#thickn").text("qt/lb");
+                    $("#target_t").text("degF");
+                    $("#water_req").text("quarts");
+
+
+                }
+
+
+
+
+            });
+
+            $('input').on('change', function() {
+                var st = $("#Starting-temperature").val();
+                var gw = $("#Grain-weight").val();
+                var gtwr = $("#Mash-thickness").val();
+                var tt = $("#Target-Temperature").val();
+
+                var unit = $("#Measurement-units").val();
+                if (st == "" || gw == "" || gtwr == "" || tt == "") {
+                    return false;
+                }
+                var datasubmited = {
+                    'st': st,
+                    'gw': gw,
+                    'gtwr': gtwr,
+                    'tt': tt,
+
+                    'unit': unit
+                }
+                $('#loading').removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    url: "infusion.php",
+                    dataType: "json",
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: datasubmited,
+
+
+                    success: function(data) {
+                        console.log(data);
+                        data = data['data']['res'];
+                        $("#Water-required").val(data);
+                        $('#loading').addClass('hidden');
+
+
+
+
+                    }
+                });
+
+
+
+
+            });
+
+
+
+
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+						Infusion
+					</h3>
+                <p>This tool helps you calculate how much boiling water you need to add to your mash </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Input</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Measurement-units">
+                            Measurement units
+                        </label>
+                        <select class="form-control" id="Measurement-units" autocomplete="off">
+                            <option value='metric'>Metric</option>
+                            <option value='us' selected>U.S</option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="Starting-temperature">
+                            Starting temperature
+                        </label>
+                        <label for="Starting-temperature">
+                            <small id='st' style='font-size:10px; color:gray; margin-left:50px;'>degF</small>
+                        </label>
+                        <input class="form-control" id="Starting-temperature" type="text" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Grain-weight">
+                            Grain weight
+                        </label>
+                        <label for="Grain-weight">
+                            <small id='gw' style='font-size:10px; color:gray; margin-left:50px;'>lb</small>
+                        </label>
+
+                        <input class="form-control" id="Grain-weight" type="text" autocomplete="off" />
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="Mash-thickness">
+                            Mash thickness
+                        </label>
+                        <label for="Mash-thickness">
+                            <small id='thickn' style='font-size:10px; color:gray; margin-left:50px;'>qt/lb</small>
+                        </label>
+
+                        <input class="form-control" id="Mash-thickness" type="text" autocomplete="off" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Target-Temperature">
+                            Target Temperature
+                        </label>
+
+                        <label for="Target-Temperature">
+                            <small id='target_t' style='font-size:10px; color:gray; margin-left:50px;'>degF</small>
+                        </label>
+
+                        <input class="form-control" id="Target-Temperature" type="text" autocomplete="off" />
+                    </div>
+                    <div id="loading" class="hidden">
+                        Loading...
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 well">
+                <h3>Output</h3>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Water-required">
+                            Water required
+                        </label>
+
+                        <label for="Water-required">
+                            <small id='water_req' style='font-size:10px; color:gray; margin-left:50px;'>quarts</small>
+                        </label>
+                        <input class="form-control" id="Water-required" type="text" autocomplete="off" readonly="readonly" />
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
